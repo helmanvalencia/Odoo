@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+
+    <record model="ir.ui.view" id="sale_margin_percent_sale_order">
+        <field name="name">sale.order.margin.percent.view.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='sale_total']" position="after">
+                <group name="sale_margin_percent_grp">
+                    <field name="profit" widget='percent'/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</data>
+</openerp>

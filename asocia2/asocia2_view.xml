@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- asocia2.afiliado -->
+        <record id="asocia2_afiliado_tree" model="ir.ui.view">
+            <field name="name">asocia2.afiliado.tree</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <tree string="Listado de afiliados">
+                    <field name="name"/>
+                    <field name="cc_afiliado"/>
+                    <field name="regional"/>
+                    <field name="fec_afiliacion"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="asocia2_afiliado_action" model="ir.actions.act_window">
+            <field name="name">Afiliados</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('membership','=','True')]</field>
+        </record>
+        <record id="asocia2_proveedor_action" model="ir.actions.act_window">
+            <field name="name">Proveedores</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('supplier','=','True')]</field>
+        </record>
+        <record id="asocia2_producto_action" model="ir.actions.act_window">
+            <field name="name">Productos</field>
+            <field name="res_model">product.template</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="asocia2_caja_action" model="ir.actions.act_window">
+            <field name="name">Caja</field>
+            <field name="res_model">account.voucher</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('name','!=','')]</field>
+        </record>
+
+        <!-- asocia2.control_procesos -->
+        <record id="asocia2_control_procesos_tree" model="ir.ui.view">
+            <field name="name">asocia2.control_procesos.tree</field>
+            <field name="model">asocia2.control_procesos</field>
+            <field name="arch" type="xml">
+                <tree string="Control de los procesos">
+                    <field name="periodo_actual"/>
+                </tree>
+            </field>
+        </record>
+        <record id="asocia2_control_procesos_form" model="ir.ui.view">
+            <field name="name">asocia2.control_procesos.form</field>
+            <field name="model">asocia2.control_procesos</field>
+            <field name="arch" type="xml">
+                <form string="Control de los procesos">
+                    <header>
+                        <button name="cierre" string="Cierre de periodo" type="object"/>
+                    </header>
+                    <group col="4">
+                        <field name="periodo_actual"/>
+                        <field name="periodos_ids"/>
+                    </group>
+                    <group>
+                        <field name="periodos_ids">
+                            <tree string="Periodos con procesos" editable="bottom">
+                                <field name="periodo"/>
+                                <field name="procesos_ids"/>
+                            </tree>
+                        </field>
+                    </group>
+                </form>
+            </field>
+        </record>
+        <record id="asocia2_proceso_action" model="ir.actions.act_window">
+            <field name="name">Procesos</field>
+            <field name="res_model">asocia2.control_procesos</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- asocia2.procesos -->
+        <record id="asocia2_procesos_tree" model="ir.ui.view">
+            <field name="name">asocia2.procesos.tree</field>
+            <field name="model">asocia2.procesos</field>
+            <field name="arch" type="xml">
+                <tree string="Procesos a ejecutar en el periodo">
+                    <field name="proveedor_id"/>
+                    <field name="categ_id"/>
+                    <field name="nombre_proceso"/>
+                    <button name="proceso" string="Ejecutar proceso" type="object"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- asocia2.estado_cuenta -->
+        <record id="view_order_estado_cuenta_graph" model="ir.ui.view">
+             <field name="name">asocia2.report.graph</field>
+             <field name="model">asocia2.report</field>
+             <field name="arch" type="xml">
+                 <graph string="Sales Analysis" type="pivot" stacked="True">
+                     <field name="section_id" type="row"/>
+                     <field name="date" interval="month" type="col"/>
+                     <field name="price_total" type="measure"/>
+                 </graph>
+             </field>
+        </record>
+
+        <!-- Custom reports (aka filters) -->
+        <record id="filter_estado_cuenta_report_sales_funnel" model="ir.filters">
+            <field name="name">Sales Funnel</field>
+            <field name="model_id">asocia2.report</field>
+            <field name="domain">['&amp;', ('date','&lt;=', time.strftime('%%Y-12-31')), '&amp;', ('date','&gt;=',time.strftime('%%Y-01-01')), ('state','not in',('cancel',))]</field>
+            <field name="user_id" eval="False"/>
+            <field name="context">{'group_by': ['state'], 'measures': ['price_total']}</field>
+        </record>
+        <record id="filter_estado_cuenta_report_salespersons" model="ir.filters">
+            <field name="name">By Salespersons</field>
+            <field name="model_id">asocia2.report</field>
+            <field name="user_id" eval="False"/>
+            <field name="context">{'group_by': ['date:month', 'user_id']}</field>
+        </record>
+        <record id="filter_estado_cuenta_report_salesteam" model="ir.filters">
+            <field name="name">By Salesteam</field>
+            <field name="model_id">asocia2.report</field>
+            <field name="user_id" eval="False"/>
+            <field name="context">{'group_by': ['date:month', 'section_id']}</field>
+        </record>
+        <record id="filter_estado_cuenta_report_product" model="ir.filters">
+            <field name="name">By Product</field>
+            <field name="model_id">asocia2.report</field>
+            <field name="user_id" eval="False"/>
+            <field name="context">{'group_by': ['date:month', 'product_id']}</field>
+        </record>
+
+        <record id="view_order_estado_cuenta_search" model="ir.ui.view">
+            <field name="name">asocia2.report.search</field>
+            <field name="model">asocia2.report</field>
+            <field name="arch" type="xml">
+                <search string="Sales Analysis">
+                    <field name="date"/>
+                    <field name="date_confirm"/>
+                    <filter string="This Year" name="year" invisible="1" domain="[('date','&lt;=', time.strftime('%%Y-12-31')),('date','&gt;=',time.strftime('%%Y-01-01'))]"/>
+                    <filter name="Quotations" domain="[('state','in',('draft'))]"/>
+                    <filter name="Sales" string="Sales" domain="[('state','not in',('draft', 'cancel'))]"/>
+                    <separator/>
+                    <filter string="My Sales" help="My Sales" domain="[('user_id','=',uid)]"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="user_id"/>
+                    <group expand="0" string="Extended Filters">
+                        <field name="categ_id"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <group expand="1" string="Group By">
+                        <filter string="Salesperson" name="User" context="{'group_by':'user_id'}"/>
+                        <filter string="Sales Team" context="{'group_by':'section_id'}" groups="base.group_multi_salesteams"/>
+                        <filter string="Customer" name="Customer" context="{'group_by':'partner_id'}"/>
+                        <filter string="Category of Product" name="Category" context="{'group_by':'categ_id'}"/>
+                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <filter string="Company" groups="base.group_multi_company" context="{'group_by':'company_id'}"/>
+                        <separator/>
+                        <filter string="Order Month" context="{'group_by':'date:month'}" help="Ordered date of the sales order"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="asocia2_estado_cuenta_action" model="ir.actions.act_window">
+            <field name="name">Sales Analysis</field>
+            <field name="res_model">asocia2.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">graph</field>
+            <field name="search_view_id" ref="view_order_estado_cuenta_search"/>
+            <field name="view_id" ref="view_order_estado_cuenta_graph"/>
+            <field name="context">{'search_default_Sales':1, 'group_by_no_leaf':1,'group_by':[]}</field>
+            <field name="help">This report performs analysis on your quotations and sales orders. Analysis check your sales revenues and sort it by different group criteria (salesman, partner, product, etc.) Use this report to perform analysis on sales not having invoiced yet. If you want to analyse your turnover, you should use the Invoice Analysis report in the Accounting application.</field>
+        </record>
+
+        <!-- Top menu item -->
+        <menuitem id="asocia2_menu" name="Asocia2"/>
+
+        <menuitem id="asocia2_afiliado_menu" name="Asociados"
+            parent="asocia2_menu" sequence="0"/>
+
+        <menuitem id="asocia2_afiliado_menu_action" name="Afiliados"
+            parent="asocia2_afiliado_menu" sequence="0" action="asocia2_afiliado_action"/>
+
+        <menuitem id="asocia2_proveedor_menu_action" name="Proveedores"
+            parent="asocia2_afiliado_menu" sequence="0" action="asocia2_proveedor_action"/>
+
+        <menuitem id="asocia2_producto_menu_action" name="Productos"
+            parent="asocia2_afiliado_menu" sequence="0" action="asocia2_producto_action"/>
+
+        <menuitem id="asocia2_proceso_menu_action" name="Procesos"
+            parent="asocia2_afiliado_menu" sequence="0" action="asocia2_proceso_action"/>
+
+        <menuitem id="asocia2_caja_menu_action" name="Caja"
+            parent="asocia2_afiliado_menu" sequence="0" action="asocia2_caja_action"/>
+
+        <menuitem id="asocia2_reporte_menu" name="Reportes"
+            parent="asocia2_menu" sequence="0"/>
+
+        <menuitem id="asocia2_estado_cuenta_menu_action" name="Estado de Cuenta"
+            parent="asocia2_reporte_menu" sequence="0" action="asocia2_estado_cuenta_action"/>
+
+        <!-- Herencia -->
+        <record id="inherit_respartner_asocia2" model="ir.ui.view">
+            <field name="name">Partners</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/*" position="before">
+                    <header>
+                        <button name="confirm" string="Aprobar Afiliacion" states="draft,retired,cancel" type="object"/>
+                        <button name="retired" string="Retiro voluntario" states="confirmed" type="object"/>
+                        <button name="cancel" string="Retiro por no pago" states="confirmed" type="object"/>
+                        <button name="death" string="Retiro por muerte" states="confirmed" type="object"/>
+                    </header>
+                </xpath>
+                <xpath expr="//page[@name='sales_purchases']" position="after">
+                    <page name="membership" string="Afiliacion" attrs="{'invisible':[('supplier','=',True)]}">
+                        <group col="4">
+                            <field name="membership" domain="[('membership','=',True)]"/>
+                            <field name="cc_afiliado"/>
+                            <field name="fec_afiliacion"/>
+                            <field name="state"/>
+                            <field name="regional"/>
+                        </group>
+                        <group>
+                            <field name="vinculados_ids">
+                                <tree string="Afiliados vinculados" editable="bottom">
+                                    <field name="cc_afiliado_vinculado"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="hist_afiliacion_ids" readonly="True">
+                                <tree string="Historia de afiliacion">
+                                    <field name="fecha"/>
+                                    <field name="estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                    <page name="convenio" string="Convenios" attrs="{'invisible':[('membership','=',True)]}">
+                        <group>
+                            <field name="conv_servicio_ids">
+                                <tree string="Servicios">
+                                    <field name="categ_id"/>
+                                    <field name="causacion"/>
+                                    <field name="pago"/>
+                                    <field name="estado"/>
+                                    <field name="fecha_inicio"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="conv_prestamo_ids">
+                                <tree string="Prestamos">
+                                    <field name="categ_id"/>
+                                    <field name="causacion"/>
+                                    <field name="pago"/>
+                                    <field name="estado"/>
+                                    <field name="fecha_inicio"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="conv_pago_ids">
+                                <tree string="Pago">
+                                    <field name="categ_id"/>
+                                    <field name="porcentaje_para_aportes"/>
+                                    <field name="causacion"/>
+                                    <field name="pago"/>
+                                    <field name="estado"/>
+                                    <field name="fecha_inicio"/>
+                                    <field name="prioridad_de_pago_ids">
+                                        <tree string="Orden descuentos">
+                                            <field name="categ_id"/>
+                                        </tree>
+                                    </field>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                    <page name="servicio" string="Servicios" attrs="{'invisible':[('supplier','=',True)]}">
+                        <group>
+                            <field name="servicio_generico_ids">
+                                <tree string="Servicios">
+                                    <field name="product_id"/>
+                                    <field name="valor_cuota"/>
+                                    <field name="estado"/>
+                                    <field name="fecha"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="servicio_credito_ids">
+                                <tree string="Servicios">
+                                    <field name="product_id"/>
+                                    <field name="valor_cuota"/>
+                                    <field name="estado"/>
+                                    <field name="fecha"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="servicio_prestamo_ids">
+                                <tree string="Prestamos">
+                                    <field name="product_id"/>
+                                    <field name="valor_cuota"/>
+                                    <field name="estado"/>
+                                    <field name="fecha"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="servicio_pago_ids">
+                                <tree string="Pago">
+                                    <field name="product_id"/>
+                                    <field name="valor_cuota"/>
+                                    <field name="estado"/>
+                                    <field name="fecha"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="servicio_aportes_ids">
+                                <tree string="Aportes">
+                                    <field name="product_id"/>
+                                    <field name="valor_cuota"/>
+                                    <field name="estado"/>
+                                    <field name="fecha"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+        <record id="inherit_purchaseorder_asocia2" model="ir.ui.view">
+            <field name="name">Purchase order</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='picking_type_id']" position="after">
+                    <group col="4">
+                        <field name="cobro"/>
+                        <field name="periodo"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        <record id="inherit_saleorder_asocia2" model="ir.ui.view">
+            <field name="name">Sale order</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <group col="4">
+                        <field name="cobro"/>
+                        <field name="periodo"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        <record id="inherit_voucher_asocia2" model="ir.ui.view">
+            <field name="name">Account voucher</field>
+            <field name="model">account.voucher</field>
+            <field name="inherit_id" ref="account_voucher.view_low_priority_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <group col="4">
+                        <field name="caja"/>
+                        <field name="tipo_transaccion"/>
+                        <field name="metodo_aplicacion"/>
+                    </group>
+                    <group>
+                        <field name="vouchers_seleccion_ids">
+                            <tree string="Distribucion del Pago">
+                                <field name="product_id"/>
+                                <field name="valor"/>
+                                <field name="metodo_aplicacion"/>
+                            </tree>
+                        </field>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
